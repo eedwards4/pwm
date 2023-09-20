@@ -5,7 +5,7 @@
 #ifndef PWM_ACCOUNTHANDLER_H
 #define PWM_ACCOUNTHANDLER_H
 
-#define KEY_LEN 32
+#define KEY_LEN 256
 
 #include <filesystem>
 #include <iostream>
@@ -41,6 +41,9 @@ private:
     void getKeys();
     void storeAccounts();
     void getAccounts();
+    int storeFile(string filename, ByteArray data);
+    ByteArray getFile(string filename);
+    int deleteFile(string filename);
 
     // Master
     void masterEncrypt(string masterPass);

@@ -6,10 +6,10 @@
 
 #include "accountHandler.h"
 
-void encryptCLI(accountHandler handler);
-void decryptCLI(accountHandler handler);
-void changePasswordCLI(accountHandler handler);
-void deletePasswordCLI(accountHandler handler);
+void encryptCLI(accountHandler& handler);
+void decryptCLI(accountHandler& handler);
+void changePasswordCLI(accountHandler& handler);
+void deletePasswordCLI(accountHandler& handler);
 
 int main(){
     accountHandler handler;
@@ -41,12 +41,13 @@ int main(){
         }
         else {
             cout << "Invalid choice." << endl;
+            break;
         }
     }
     return 0;
 }
 
-void encryptCLI(accountHandler handler){
+void encryptCLI(accountHandler& handler){
     cout << "Input an account: " << endl;
     string acctName;
     cin >> acctName;
@@ -59,14 +60,14 @@ void encryptCLI(accountHandler handler){
     handler.makeAcct(acctName, user, pass);
 }
 
-void decryptCLI(accountHandler handler){
+void decryptCLI(accountHandler& handler){
     cout << "Input an account: " << endl;
     string acctName;
     cin >> acctName;
     handler.getAcct(acctName);
 }
 
-void changePasswordCLI(accountHandler handler){
+void changePasswordCLI(accountHandler& handler){
     cout << "Input an account: " << endl;
     string filename;
     cin >> filename;
@@ -76,7 +77,7 @@ void changePasswordCLI(accountHandler handler){
     handler.changePassword(filename, pass);
 }
 
-void deletePasswordCLI(accountHandler handler){
+void deletePasswordCLI(accountHandler& handler){
     cout << "Input an account: " << endl;
     string filename;
     cin >> filename;

@@ -26,11 +26,18 @@ accountHandler::~accountHandler() {
 
 // Public
 void accountHandler::makeAcct(string accountName, string username, string password) {
-    accounts.emplace_back(accountName, username, encrypt(password, accountName));
+    accountName = accountName + ".enc";
+    try {
+        accounts.emplace_back(accountName, username, encrypt(password, accountName));
+    }
+    catch (exception &e) {
+        cout << "Error: " << e.what() << endl;
+    }
     cout << "Account created successfully." << endl;
 }
 
 void accountHandler::getAcct(string accountName) {
+    accountName = accountName + ".enc";
     for (tuple<string, string, ByteArray> i : accounts){
         if (get<0>(i) == accountName){
             cout << "Username for " << accountName << " is: " << get<1>(i) << endl;
@@ -40,55 +47,94 @@ void accountHandler::getAcct(string accountName) {
 }
 
 void accountHandler::changeUsername(string accountName, string newUsername) {
-
+    accountName = accountName + ".enc";
 }
 
 void accountHandler::changePassword(string accountName, string newPassword) {
-
+    accountName = accountName + ".enc";
 }
 
 void accountHandler::deleteAcct(string accountName) {
-
+    accountName = accountName + ".enc";
 }
 
 // Private
 ByteArray accountHandler::encrypt(string password, string accountName) {
     ByteArray key = keyGen(), plain, enc;
-    for (unsigned char i : password) {
+    string encString;
+    // Convert password to byte array
+    for (char i : password){
         plain.push_back(i);
     }
     // Encrypt password
-    Aes256::encrypt(plain, key, enc);
-    // Store encrypted password as file
-    ofstream encFile(accountName + ".enc");
-    if (encFile.is_open()) {
-        for (unsigned char i : enc) {
-            encFile << i;
-        }
-        encFile.close();
-    }
-    // Return key
+    Aes256::encrypt(key, plain, enc);
+    storeFile(accountName, enc);
     return key;
 }
 
 string accountHandler::decrypt(string accountName, ByteArray key) {
-    fstream encFile(accountName + ".enc");
     ByteArray enc, dec;
-    if (encFile.is_open()) {
-        char c;
-        while (encFile.get(c)) {
-            enc.push_back(c);
-        }
-        encFile.close();
-    }
-    // Decrypt file
+    string password;
+    // Read file into enc
+    enc = getFile(accountName);
     Aes256::decrypt(key, enc, dec);
     // Return decrypted string
-    string password;
-    for (unsigned char i : dec) {
+    for (unsigned char i : dec){
         password.push_back(i);
     }
     return password;
+}
+
+int accountHandler::storeFile(std::string filename, ByteArray data) {
+    try {
+        // Open/create file
+        ofstream file;
+        file.open(filename);
+        // Write data to file
+        for (unsigned char i : data){
+            file << i;
+        }
+        // Close file
+        file.close();
+    }
+    catch (exception e){
+        cout << "Error: " << e.what() << endl;
+        return 1;
+    }
+    return 0;
+}
+
+ByteArray accountHandler::getFile(std::string filename) {
+    ByteArray data;
+    try {
+        // Open file
+        ifstream file;
+        file.open(filename);
+        // Read data from file
+        char c;
+        while (file.get(c)){
+            data.push_back(c);
+        }
+        // Close file
+        file.close();
+        return data;
+    }
+    catch (exception e){
+        cout << "Error: " << e.what() << endl;
+        return data;
+    }
+}
+
+int accountHandler::deleteFile(std::string filename) {
+    try {
+        // Delete file
+        filesystem::remove(filename);
+    }
+    catch (exception e){
+        cout << "Error: " << e.what() << endl;
+        return 1;
+    }
+    return 0;
 }
 
 ByteArray accountHandler::keyGen() {
